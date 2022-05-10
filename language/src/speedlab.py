@@ -1,9 +1,10 @@
 #######################################
 # IMPORTS
 #######################################
-import string
 
 from strings_with_arrows import *
+
+import string
 
 #######################################
 # CONSTANTS
@@ -107,19 +108,19 @@ TT_POW = 'POW'
 TT_EQ = 'EQ'
 TT_LPAREN = 'LPAREN'
 TT_RPAREN = 'RPAREN'
-TT_EE = 'EE'
-TT_NE = 'NE'
-TT_LT = 'LT'
-TT_GT = 'GT'
-TT_LTE = 'LTE'
-TT_GTE = 'GTE'
+TT_EE = 'EE'  #
+TT_NE = 'NE'  #
+TT_LT = 'LT'  #
+TT_GT = 'GT'  #
+TT_LTE = 'LTE'  #
+TT_GTE = 'GTE'  #
 TT_EOF = 'EOF'
 
 KEYWORDS = [
     'VAR',
-    'AND',
-    'OR',
-    'NOT'
+    'AND',  #
+    'OR',  #
+    'NOT'  #
 ]
 
 class Token:
@@ -133,7 +134,7 @@ class Token:
             self.pos_end.advance()
 
         if pos_end:
-            self.pos_end = pos_end
+            self.pos_end = pos_end.copy()
 
     def matches(self, type_, value):
         return self.type == type_ and self.value == value
@@ -190,9 +191,9 @@ class Lexer:
                 tokens.append(Token(TT_RPAREN, pos_start=self.pos))
                 self.advance()
             elif self.current_char == '!':
-                tok, error = self.make_not_equals()
+                token, error = self.make_not_equals()
                 if error: return [], error
-                tokens.append(tok)
+                tokens.append(token)
             elif self.current_char == '=':
                 tokens.append(self.make_equals())
             elif self.current_char == '<':
@@ -217,9 +218,7 @@ class Lexer:
             if self.current_char == '.':
                 if dot_count == 1: break
                 dot_count += 1
-                num_str += '.'
-            else:
-                num_str += self.current_char
+            num_str += self.current_char
             self.advance()
 
         if dot_count == 0:
@@ -286,7 +285,6 @@ class Lexer:
 # NODES
 #######################################
 
-# number node
 class NumberNode:
     def __init__(self, tok):
         self.tok = tok
@@ -296,19 +294,6 @@ class NumberNode:
 
     def __repr__(self):
         return f'{self.tok}'
-
-# Binary operation node
-class BinOpNode:
-    def __init__(self, left_node, op_tok, right_node):
-        self.left_node = left_node
-        self.op_tok = op_tok
-        self.right_node = right_node
-
-        self.pos_start = self.left_node.pos_start
-        self.pos_end = self.right_node.pos_end
-
-    def __repr__(self):
-        return f'({self.left_node}, {self.op_tok}, {self.right_node})'
 
 class VarAccessNode:
     def __init__(self, var_name_tok):
@@ -325,7 +310,18 @@ class VarAssignNode:
         self.pos_start = self.var_name_tok.pos_start
         self.pos_end = self.value_node.pos_end
 
-# Unary operation node
+class BinOpNode:
+    def __init__(self, left_node, op_tok, right_node):
+        self.left_node = left_node
+        self.op_tok = op_tok
+        self.right_node = right_node
+
+        self.pos_start = self.left_node.pos_start
+        self.pos_end = self.right_node.pos_end
+
+    def __repr__(self):
+        return f'({self.left_node}, {self.op_tok}, {self.right_node})'
+
 class UnaryOpNode:
     def __init__(self, op_tok, node):
         self.op_tok = op_tok
@@ -385,7 +381,7 @@ class Parser:
         if not res.error and self.current_tok.type != TT_EOF:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
-                "Expected '+', '-', '*' or '/'"
+                "Expected '+', '-', '*', '/', '^', '==', '!=', '<', '>', <=', '>=', 'AND' or 'OR'"
             ))
         return res
 
@@ -421,11 +417,12 @@ class Parser:
                 ))
 
         return res.failure(InvalidSyntaxError(
-            tok.pos_start, tok.pos_end, "Expected int, float, identifier, '+', '-', or  '('"
+            tok.pos_start, tok.pos_end,
+            "Expected int, float, identifier, '+', '-', '('"
         ))
 
     def power(self):
-        return self.bin_op(self.atom, (TT_POW, ), self.factor)
+        return self.bin_op(self.atom, (TT_POW,), self.factor)
 
     def factor(self):
         res = ParseResult()
@@ -463,29 +460,32 @@ class Parser:
         if res.error:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
-                "Expected int, float, identifier, '+', '-'  '(', 'NOT'"
+                "Expected int, float, identifier, '+', '-', '(' or 'NOT'"
             ))
 
         return res.success(node)
 
     def expr(self):
         res = ParseResult()
+
         if self.current_tok.matches(TT_KEYWORD, 'VAR'):
             res.register_advancement()
             self.advance()
 
-            if self.current_tok.type is not TT_IDENTIFIER:
+            if self.current_tok.type != TT_IDENTIFIER:
                 return res.failure(InvalidSyntaxError(
-                    self.current_tok.pos_start, self.current_tok.pos_end, 'Expected identifier'
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    "Expected identifier"
                 ))
 
             var_name = self.current_tok
             res.register_advancement()
             self.advance()
 
-            if self.current_tok.type is not TT_EQ:
+            if self.current_tok.type != TT_EQ:
                 return res.failure(InvalidSyntaxError(
-                    self.current_tok.pos_start, self.current_tok.pos_end, "Expected '='"
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    "Expected '='"
                 ))
 
             res.register_advancement()
@@ -499,7 +499,7 @@ class Parser:
         if res.error:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
-                "Expected 'VAR', int, float, identifier, '+', '-' or '('"
+                "Expected 'VAR', int, float, identifier, '+', '-', '(' or 'NOT'"
             ))
 
         return res.success(node)
@@ -509,15 +509,16 @@ class Parser:
     def bin_op(self, func_a, ops, func_b=None):
         if func_b is None:
             func_b = func_a
+
         res = ParseResult()
         left = res.register(func_a())
         if res.error: return res
 
-        while self.current_tok.type in ops:
+        while self.current_tok.type in ops or (self.current_tok.type, self.current_tok.value) in ops:
             op_tok = self.current_tok
             res.register_advancement()
             self.advance()
-            right = res.register(func_a())
+            right = res.register(func_b())
             if res.error: return res
             left = BinOpNode(left, op_tok, right)
 
@@ -646,7 +647,7 @@ class Context:
         self.symbol_table = None
 
 #######################################
-# SYMBOL TABEL
+# SYMBOL TABLE
 #######################################
 
 class SymbolTable:
@@ -694,7 +695,8 @@ class Interpreter:
         if not value:
             return res.failure(RTError(
                 node.pos_start, node.pos_end,
-                f"'{var_name}' is not defined", context
+                f"'{var_name}' is not defined",
+                context
             ))
 
         value = value.copy().set_pos(node.pos_start, node.pos_end)
@@ -771,9 +773,10 @@ class Interpreter:
 
 
 global_symbol_table = SymbolTable()
-global_symbol_table.set('NULL', Number(0))
-global_symbol_table.set('TRUE', Number(1))
-global_symbol_table.set('FALSE', Number(0))
+global_symbol_table.set("NULL", Number(0))
+global_symbol_table.set("FALSE", Number(0))
+global_symbol_table.set("TRUE", Number(1))
+
 
 def run(fn, text):
     # Generate tokens
