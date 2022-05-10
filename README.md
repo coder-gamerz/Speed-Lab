@@ -7,7 +7,7 @@ Speed-lab is a high-speed, high performance OS and language package. It contains
 [Emphasis](#emphasis)  
 ...snip...    
 <a name="CheetahOS"/>
-## Headers
+
 
 # CheetahOS
 
