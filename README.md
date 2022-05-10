@@ -2,7 +2,7 @@
 
 Speed-lab is a high-speed, high performance OS and language package. It contains CheetahOS and the programming language co-ops, short for coding operations. 
 
-Both CheetahOS and co-ops
+Both CheetahOS and co-ops are free to use under the MIT license. While using these products, you may come across unknown errors or bugs, please report them on our website **include website**
 
 ### Table of Contents  
 [CheetahOS](#CheetahOS)  
