@@ -2,7 +2,12 @@
 
 Speed-lab is a high-speed, high performance OS and language package. It contains CheetahOS and the programming language co-ops, short for coding operations. 
 
-<a name='CheetahOS'>
+##### Table of Contents  
+[CheetahOS](#CheetahOS)  
+[Emphasis](#emphasis)  
+...snip...    
+<a name="CheetahOS"/>
+## Headers
 
 # CheetahOS
 
