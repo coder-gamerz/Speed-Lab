@@ -4,8 +4,8 @@ Speed-lab is a high-speed, high performance OS and language package. It contains
 
 ##### Table of Contents  
 [CheetahOS](#CheetahOS)  
-[Emphasis](#Coding Operations)  
+[Emphasis](#Coding-Operations)  
 
 # CheetahOS
 
-# Coding Operations
+# Coding-Operations
