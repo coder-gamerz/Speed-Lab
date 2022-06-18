@@ -12,7 +12,7 @@ Both CheetahOS and co-ops are free to use under the MIT license. While using the
 
 # CheetahOS
 
-**work in progress**
+This OS is always in developement and gets many updates. It is faster and lighter weighted than other operating systems. It has FAT16 filesystem.
 
 # Coding-Operations
 
