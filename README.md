@@ -23,7 +23,3 @@ Co-ops, or Coding Operations, is a easy-to-read, high-level, interpreted, Python
 Install the files with their respective name. So `shell.py` should be named `shell.py`, etc. Then, run `shell.py` and you are ready to go. 
 
 We are working on better ways of installing the language, but untill then, this is the way.
-
-## Docs
-
-**work in progress**
